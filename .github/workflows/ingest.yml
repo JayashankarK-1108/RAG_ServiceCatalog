@@ -1,0 +1,108 @@
+# .github/workflows/ingest.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers the LangChain Service Catalog ingestion pipeline.
+#
+# Triggers:
+#   • Auto  — push to main when data/service_catalog.xlsx changes
+#   • Manual — Actions tab with reset / file / redeploy options
+#   • Schedule — every Sunday 00:00 UTC
+#
+# Required GitHub Secrets:
+#   OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME,
+#   PINECONE_CLOUD, PINECONE_REGION, RENDER_DEPLOY_HOOK (optional)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: 🗂️ Service Catalog Ingestion (LangChain)
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/service_catalog.xlsx"]
+
+  workflow_dispatch:
+    inputs:
+      reset:
+        description: "Wipe Pinecone index and re-ingest from scratch"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      excel_file:
+        description: "Custom Excel path (leave blank for default)"
+        required: false
+        default: ""
+      redeploy_render:
+        description: "Trigger Render redeploy after ingestion"
+        required: false
+        default: "true"
+        type: choice
+        options: ["true", "false"]
+
+  schedule:
+    - cron: "0 0 * * 0"   # Every Sunday at midnight UTC
+
+jobs:
+  ingest:
+    name: LangChain Ingestion Pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔍 Validate Excel before ingesting
+        run: python scripts/validate_excel.py
+
+      - name: 🚀 Run LangChain ingestion
+        env:
+          OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
+          PINECONE_API_KEY:    ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
+          PINECONE_CLOUD:      ${{ secrets.PINECONE_CLOUD }}
+          PINECONE_REGION:     ${{ secrets.PINECONE_REGION }}
+          PYTHONPATH:          "."
+        run: |
+          FLAGS=""
+          [ "${{ github.event.inputs.reset }}" = "true" ] && FLAGS="$FLAGS --reset"
+          [ -n "${{ github.event.inputs.excel_file }}" ] && FLAGS="$FLAGS --file ${{ github.event.inputs.excel_file }}"
+          python ingest.py $FLAGS
+
+      - name: 📄 Upload ingestion log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest-log-${{ github.run_number }}
+          path: logs/ingest.log
+          retention-days: 30
+
+      - name: 🔄 Trigger Render redeploy
+        if: |
+          secrets.RENDER_DEPLOY_HOOK != '' &&
+          github.event.inputs.redeploy_render != 'false'
+        run: curl -s --fail -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+      - name: 📋 Job summary
+        if: always()
+        run: |
+          echo "## 🗂️ LangChain Ingestion — Run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reset   | ${{ github.event.inputs.reset || 'false' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit  | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          if [ -f logs/ingest.log ]; then
+            echo "### Last 20 log lines" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -20 logs/ingest.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

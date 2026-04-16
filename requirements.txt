@@ -1,0 +1,31 @@
+# ── LangChain core ────────────────────────────────────────────────────────────
+langchain>=0.2.0
+langchain-core>=0.2.0
+langchain-community>=0.2.0
+langchain-openai>=0.1.0
+langchain-pinecone>=0.1.0
+langchain-text-splitters>=0.2.0
+
+# ── Vector store ──────────────────────────────────────────────────────────────
+pinecone-client>=3.2.0
+
+# ── LLM / Embeddings ─────────────────────────────────────────────────────────
+openai>=1.30.0
+tiktoken>=0.7.0
+
+# ── Excel parsing ─────────────────────────────────────────────────────────────
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# ── FastAPI ───────────────────────────────────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.7.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+tenacity>=8.3.0
+tqdm>=4.66.0
+colorama>=0.4.6
+aiofiles>=23.2.1
+requests>=2.31.0

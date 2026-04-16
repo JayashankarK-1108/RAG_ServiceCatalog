@@ -1,0 +1,70 @@
+# render.yaml — Render Blueprint
+# ─────────────────────────────────────────────────────────────────────────────
+# Defines the Service Catalog RAG as a Render Web Service.
+# Commit this to your repo root. Render auto-detects it at:
+#   https://dashboard.render.com/new/blueprint
+#
+# Keys marked sync: false must be set manually in the Render dashboard.
+# Docs: https://render.com/docs/blueprint-spec
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: service-catalog-rag
+    runtime: python
+    region: oregon               # options: oregon | frankfurt | singapore | ohio
+    plan: starter                # starter (free) | standard | pro
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+
+    healthCheckPath: /health
+    autoDeploy: true
+
+    envVars:
+      # ── Secrets — set in Render dashboard, never committed ──────────────
+      - key: OPENAI_API_KEY
+        sync: false
+
+      - key: PINECONE_API_KEY
+        sync: false
+
+      - key: PINECONE_INDEX_NAME
+        sync: false
+
+      # ── Safe defaults — committed in render.yaml ─────────────────────────
+      - key: PINECONE_CLOUD
+        value: aws
+
+      - key: PINECONE_REGION
+        value: us-east-1
+
+      - key: PINECONE_NAMESPACE
+        value: ""
+
+      - key: EXCEL_FILE_PATH
+        value: data/service_catalog.xlsx
+
+      - key: EXCEL_SHEET_NAME
+        value: "0"
+
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+
+      - key: EMBEDDING_MODEL
+        value: text-embedding-3-small
+
+      - key: TOP_K_RESULTS
+        value: "5"
+
+      - key: SEARCH_TYPE
+        value: similarity          # or: mmr
+
+      - key: API_HOST
+        value: "0.0.0.0"
+
+      - key: PYTHONPATH
+        value: "."
+
+      - key: PYTHONUNBUFFERED
+        value: "1"

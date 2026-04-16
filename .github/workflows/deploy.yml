@@ -1,0 +1,113 @@
+# .github/workflows/deploy.yml
+# ─────────────────────────────────────────────────────────────────────────────
+# CI/CD — lint, smoke-test, then deploy to Render on every push to main.
+# Skips when only data/ or docs change (those go through ingest.yml).
+#
+# Required GitHub Secrets:
+#   RENDER_DEPLOY_HOOK  — Render dashboard → Service → Settings → Deploy Hook
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: 🚀 Deploy to Render
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "data/**"
+      - "*.md"
+      - "logs/**"
+      - ".github/workflows/ingest.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Lint & Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: 📦 Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔍 Lint with flake8
+        run: |
+          pip install flake8 -q
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-line-length=100 --statistics
+
+      - name: 🧪 Smoke test — imports + LangChain components
+        env:
+          PYTHONPATH: "."
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, '.')
+
+          # Config
+          from config.settings import COLUMN_MAP, LLM_MODEL, EMBEDDING_MODEL
+          print(f'✅ config — LLM: {LLM_MODEL}, Embed: {EMBEDDING_MODEL}')
+
+          # LangChain document loader
+          from ingestion.loader import ExcelServiceCatalogLoader, _build_page_content
+          loader = ExcelServiceCatalogLoader('data/service_catalog.xlsx')
+          docs = loader.load()
+          assert len(docs) > 0
+          print(f'✅ ExcelServiceCatalogLoader — {len(docs)} Documents')
+
+          # LangChain text splitter
+          from ingestion.splitter import split_documents
+          chunks = split_documents(docs)
+          assert len(chunks) >= len(docs)
+          print(f'✅ RecursiveCharacterTextSplitter — {len(chunks)} chunks')
+
+          # Checkpoint
+          from ingestion.checkpoint import save_checkpoint, load_checkpoint, clear_checkpoint
+          save_checkpoint({'test-id'}, 1)
+          cp = load_checkpoint()
+          assert len(cp['upserted_ids']) == 1
+          clear_checkpoint()
+          print('✅ Checkpoint save/load/clear')
+
+          # API models
+          from api.models import QueryRequest, QueryResponse, SourceDocument
+          q = QueryRequest(query='test query about Control-M')
+          print(f'✅ Pydantic models — QueryRequest OK')
+
+          # FastAPI app + routes
+          from api.main import app
+          routes = [r.path for r in app.routes]
+          for path in ['/query', '/health', '/ingest', '/ingest/status', '/catalog/filters']:
+              assert path in routes, f'{path} missing'
+          print(f'✅ FastAPI routes registered: {[r for r in routes if not r.startswith(\"/open\")]}')
+
+          print()
+          print('All smoke tests passed ✅')
+          "
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: 🔄 Trigger Render deploy hook
+        run: |
+          curl -s --fail -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          echo "✅ Render deploy triggered"
+
+      - name: 📋 Deploy summary
+        run: |
+          echo "## 🚀 Deployed to Render" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor  | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Time   | $(date -u) |" >> $GITHUB_STEP_SUMMARY

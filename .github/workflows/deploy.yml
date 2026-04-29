@@ -1,7 +1,6 @@
 # .github/workflows/deploy.yml
 # ─────────────────────────────────────────────────────────────────────────────
-# CI/CD — lint, smoke-test, then deploy to Render on every push to main.
-# Skips when only data/ or docs change (those go through ingest.yml).
+# CI/CD — lint, smoke-test, then deploy to Render (manual trigger only).
 #
 # Required GitHub Secrets:
 #   RENDER_DEPLOY_HOOK  — Render dashboard → Service → Settings → Deploy Hook
@@ -10,13 +9,6 @@
 name: 🚀 Deploy to Render
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "data/**"
-      - "*.md"
-      - "logs/**"
-      - ".github/workflows/ingest.yml"
   workflow_dispatch:
 
 jobs:

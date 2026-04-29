@@ -3,18 +3,7 @@ name: Service Catalog Ingestion (LangChain)
 
 on:
   workflow_dispatch:
-    inputs:
-      reset:
-        description: "Wipe existing Pinecone index before ingesting"
-        required: false
-        default: "false"
-        type: choice
-        options: ["false", "true"]
-      excel_file:
-        description: "Path to Excel file (default: data/service_catalog.xlsx)"
-        required: false
-        default: ""
-
+    
 jobs:
   ingest:
     name: Extract → Chunk → Embed → Pinecone

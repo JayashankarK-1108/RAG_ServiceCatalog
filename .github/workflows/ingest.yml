@@ -1,18 +1,4 @@
-# .github/workflows/ingest.yml
-# ─────────────────────────────────────────────────────────────────────────────
-# Triggers the LangChain Service Catalog ingestion pipeline.
-#
-# Triggers:
-#   • Auto  — push to main when data/service_catalog.xlsx changes
-#   • Manual — Actions tab with reset / file / redeploy options
-#   • Schedule — every Sunday 00:00 UTC
-#
-# Required GitHub Secrets:
-#   OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX_NAME,
-#   PINECONE_CLOUD, PINECONE_REGION, RENDER_DEPLOY_HOOK (optional)
-# ─────────────────────────────────────────────────────────────────────────────
-
-name: 🗂️ Service Catalog Ingestion (LangChain)
+name: Service Catalog Ingestion (LangChain)
 
 on:
   push:

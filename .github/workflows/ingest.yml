@@ -1,11 +1,23 @@
 name: Service Catalog Ingestion (LangChain)
+# Loads the Excel file, chunks it, embeds via OpenAI, and upserts to Pinecone.
 
 on:
   workflow_dispatch:
+    inputs:
+      reset:
+        description: "Wipe existing Pinecone index before ingesting"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      excel_file:
+        description: "Path to Excel file (default: data/service_catalog.xlsx)"
+        required: false
+        default: ""
 
 jobs:
   ingest:
-    name: LangChain Ingestion Pipeline
+    name: Extract → Chunk → Embed → Pinecone
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -29,9 +41,9 @@ jobs:
         env:
           OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
           PINECONE_API_KEY:    ${{ secrets.PINECONE_API_KEY }}
-          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
-          PINECONE_CLOUD:      ${{ secrets.PINECONE_CLOUD }}
-          PINECONE_REGION:     ${{ secrets.PINECONE_REGION }}
+          PINECONE_INDEX_NAME: service-catalog
+          PINECONE_CLOUD:      aws
+          PINECONE_REGION:     us-east-1
           PYTHONPATH:          "."
         run: |
           FLAGS=""
@@ -47,21 +59,15 @@ jobs:
           path: logs/ingest.log
           retention-days: 30
 
-      - name: 🔄 Trigger Render redeploy
-        if: |
-          secrets.RENDER_DEPLOY_HOOK != '' &&
-          github.event.inputs.redeploy_render != 'false'
-        run: curl -s --fail -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
-
       - name: 📋 Job summary
         if: always()
         run: |
           echo "## 🗂️ LangChain Ingestion — Run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Reset   | ${{ github.event.inputs.reset || 'false' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commit  | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reset  | ${{ github.event.inputs.reset || 'false' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| File   | ${{ github.event.inputs.excel_file || 'data/service_catalog.xlsx' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           if [ -f logs/ingest.log ]; then
             echo "### Last 20 log lines" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY

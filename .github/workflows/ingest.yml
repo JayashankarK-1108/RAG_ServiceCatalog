@@ -1,31 +1,7 @@
 name: Service Catalog Ingestion (LangChain)
 
 on:
-  push:
-    branches: [main]
-    paths: ["data/service_catalog.xlsx"]
-
   workflow_dispatch:
-    inputs:
-      reset:
-        description: "Wipe Pinecone index and re-ingest from scratch"
-        required: false
-        default: "false"
-        type: choice
-        options: ["false", "true"]
-      excel_file:
-        description: "Custom Excel path (leave blank for default)"
-        required: false
-        default: ""
-      redeploy_render:
-        description: "Trigger Render redeploy after ingestion"
-        required: false
-        default: "true"
-        type: choice
-        options: ["true", "false"]
-
-  schedule:
-    - cron: "0 0 * * 0"   # Every Sunday at midnight UTC
 
 jobs:
   ingest:

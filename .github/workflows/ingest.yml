@@ -3,7 +3,7 @@ name: Service Catalog Ingestion (LangChain)
 
 on:
   workflow_dispatch:
-    
+  
 jobs:
   ingest:
     name: Extract → Chunk → Embed → Pinecone

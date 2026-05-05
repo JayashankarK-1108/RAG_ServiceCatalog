@@ -29,7 +29,7 @@ LangChain components used:
   • PineconeVectorStore.as_retriever()     — vector retriever
   • ChatPromptTemplate                     — structured prompt
   • ChatOpenAI                             — LLM
-  • RunnablePassthrough / RunnableLambda  — LCEL chain composition
+  • LCEL pipe (prompt | llm | parser)     — answer chain composition
   • StrOutputParser                        — parse LLM output
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
@@ -40,7 +40,6 @@ from functools import lru_cache
 
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 

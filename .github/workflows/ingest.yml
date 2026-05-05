@@ -30,7 +30,7 @@ jobs:
         env:
           OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
           PINECONE_API_KEY:    ${{ secrets.PINECONE_API_KEY }}
-          PINECONE_INDEX_NAME: service-catalog
+          PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
           PINECONE_CLOUD:      aws
           PINECONE_REGION:     us-east-1
           PYTHONPATH:          "."

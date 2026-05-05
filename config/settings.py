@@ -31,7 +31,7 @@ _pinecone_key = os.getenv("PINECONE_API_KEY")
 if not _pinecone_key:
     raise EnvironmentError("PINECONE_API_KEY environment variable is not set.")
 PINECONE_API_KEY: str     = _pinecone_key
-PINECONE_INDEX_NAME: str  = os.getenv("PINECONE_INDEX_NAME", "service-catalog")
+PINECONE_INDEX_NAME: str  = os.getenv("PINECONE_INDEX_NAME", "rag-servicecatalog")
 PINECONE_CLOUD: str       = os.getenv("PINECONE_CLOUD", "aws")
 PINECONE_REGION: str      = os.getenv("PINECONE_REGION", "us-east-1")
 PINECONE_METRIC: str      = "cosine"

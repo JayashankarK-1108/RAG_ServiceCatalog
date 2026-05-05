@@ -26,6 +26,7 @@ from functools import lru_cache
 from langchain_core.documents import Document
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
+from pinecone.exceptions import ForbiddenException
 from tqdm import tqdm
 
 import sys, os
@@ -49,12 +50,21 @@ def _ensure_index() -> Pinecone:
     existing = [idx.name for idx in pc.list_indexes()]
     if PINECONE_INDEX_NAME not in existing:
         log.info(f"Creating Pinecone index '{PINECONE_INDEX_NAME}' …")
-        pc.create_index(
-            name=PINECONE_INDEX_NAME,
-            dimension=EMBEDDING_DIMENSIONS,
-            metric=PINECONE_METRIC,
-            spec=ServerlessSpec(cloud=PINECONE_CLOUD, region=PINECONE_REGION),
-        )
+        try:
+            pc.create_index(
+                name=PINECONE_INDEX_NAME,
+                dimension=EMBEDDING_DIMENSIONS,
+                metric=PINECONE_METRIC,
+                spec=ServerlessSpec(cloud=PINECONE_CLOUD, region=PINECONE_REGION),
+            )
+        except ForbiddenException as e:
+            raise RuntimeError(
+                f"Pinecone rejected index creation for '{PINECONE_INDEX_NAME}'. "
+                f"You may have hit the maximum number of serverless indexes on your plan. "
+                f"Delete an unused index at https://app.pinecone.io or set "
+                f"PINECONE_INDEX_NAME to an existing index.\n"
+                f"Original error: {e}"
+            ) from e
         # Wait until the index is ready before returning
         log.info("Waiting for index to become ready …")
         while not pc.describe_index(PINECONE_INDEX_NAME).status["ready"]:

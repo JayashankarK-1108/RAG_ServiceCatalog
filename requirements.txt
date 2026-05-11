@@ -7,7 +7,7 @@ langchain-pinecone>=0.1.0
 langchain-text-splitters>=0.2.0
 
 # ── Vector store ──────────────────────────────────────────────────────────────
-pinecone-client>=3.2.0
+pinecone>=3.2.0
 
 # ── LLM / Embeddings ─────────────────────────────────────────────────────────
 openai>=1.30.0

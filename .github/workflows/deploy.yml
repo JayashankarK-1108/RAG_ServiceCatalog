@@ -38,6 +38,8 @@ jobs:
       - name: 🧪 Smoke test — imports + LangChain components
         env:
           PYTHONPATH: "."
+          OPENAI_API_KEY: "sk-dummy-for-smoke-test"
+          PINECONE_API_KEY: "dummy-for-smoke-test"
         run: |
           python -c "
           import sys; sys.path.insert(0, '.')

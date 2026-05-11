@@ -25,7 +25,7 @@ from functools import lru_cache
 
 from langchain_core.documents import Document
 from langchain_pinecone import PineconeVectorStore
-from pinecone import Pinecone
+from pinecone import Pinecone, ServerlessSpec
 from tqdm import tqdm
 
 import sys, os
@@ -35,7 +35,8 @@ from ingestion.embedder import get_embeddings
 from ingestion.checkpoint import load_checkpoint, save_checkpoint
 from config.settings import (
     PINECONE_API_KEY, PINECONE_INDEX_NAME, PINECONE_NAMESPACE,
-    UPSERT_BATCH_SIZE, INGEST_DELAY_MS,
+    PINECONE_CLOUD, PINECONE_REGION, PINECONE_METRIC,
+    EMBEDDING_DIMENSIONS, UPSERT_BATCH_SIZE, INGEST_DELAY_MS,
 )
 from utils.logger import get_logger
 
@@ -56,13 +57,36 @@ def _ensure_index() -> Pinecone:
     return pc
 
 
+def _ensure_or_create_index() -> Pinecone:
+    """Ensure the Pinecone index exists, creating it if necessary."""
+    pc = Pinecone(api_key=PINECONE_API_KEY)
+    existing = [idx.name for idx in pc.list_indexes()]
+    if PINECONE_INDEX_NAME not in existing:
+        log.info(
+            f"Index '{PINECONE_INDEX_NAME}' not found — creating "
+            f"({PINECONE_CLOUD}/{PINECONE_REGION}, dim={EMBEDDING_DIMENSIONS}, "
+            f"metric={PINECONE_METRIC}) …"
+        )
+        pc.create_index(
+            name=PINECONE_INDEX_NAME,
+            dimension=EMBEDDING_DIMENSIONS,
+            metric=PINECONE_METRIC,
+            spec=ServerlessSpec(cloud=PINECONE_CLOUD, region=PINECONE_REGION),
+        )
+        log.info(f"Index '{PINECONE_INDEX_NAME}' created")
+    else:
+        log.info(f"Using existing index '{PINECONE_INDEX_NAME}'")
+    return pc
+
+
 @lru_cache(maxsize=1)
 def get_vectorstore() -> PineconeVectorStore:
     """
     Return a cached LangChain PineconeVectorStore instance.
     Used by both the ingestion pipeline and the retrieval chain.
+    Creates the index if it does not exist yet.
     """
-    _ensure_index()
+    _ensure_or_create_index()
     log.info("Initialising LangChain PineconeVectorStore …")
     return PineconeVectorStore(
         index_name=PINECONE_INDEX_NAME,
@@ -130,7 +154,7 @@ def ingest_documents(
     return newly_upserted
 
 
-def get_index_stats() -> Dict:
+def get_index_stats():
     pc = _ensure_index()
     index = pc.Index(PINECONE_INDEX_NAME)
     stats = index.describe_index_stats()

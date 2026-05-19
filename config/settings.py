@@ -64,7 +64,7 @@ CHUNK_OVERLAP: int  = 100    # overlap between chunks
 
 # ── LangChain Retriever ────────────────────────────────────────────────────────
 TOP_K_RESULTS: int         = 5
-MIN_SCORE_THRESHOLD: float = 0.30
+MIN_SCORE_THRESHOLD: float = 0.10
 SEARCH_TYPE: str           = "similarity"   # "similarity" | "mmr"
 FETCH_K_MMR: int           = 20             # candidate pool for MMR re-ranking
 

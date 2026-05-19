@@ -222,6 +222,13 @@ def query(
     # Step 1: retrieve source documents once — reused for both context and response
     source_docs: List[Document] = retriever.invoke(question)
 
+    # Fallback: if threshold filtered everything, retry with plain similarity
+    if not source_docs and SEARCH_TYPE != "mmr":
+        log.warning("Score threshold returned 0 docs — falling back to plain similarity")
+        vectorstore = get_vectorstore()
+        fb_kwargs: Dict[str, Any] = {"k": top_k}
+        source_docs = vectorstore.similarity_search(question, **fb_kwargs)
+
     # Step 2: build context string from retrieved docs
     context = _format_docs(source_docs)
 

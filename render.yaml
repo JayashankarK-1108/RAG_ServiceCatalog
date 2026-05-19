@@ -18,12 +18,17 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
 
+    pythonVersion: "3.11.9"
+
     healthCheckPath: /health
     autoDeploy: true
 
     envVars:
       # ── Secrets — set in Render dashboard, never committed ──────────────
       - key: OPENAI_API_KEY
+        sync: false
+
+      - key: ANTHROPIC_API_KEY
         sync: false
 
       - key: PINECONE_API_KEY
@@ -49,7 +54,7 @@ services:
         value: "0"
 
       - key: LLM_MODEL
-        value: gpt-4o-mini
+        value: claude-sonnet-4-6
 
       - key: EMBEDDING_MODEL
         value: text-embedding-3-small

@@ -17,7 +17,7 @@ Architecture:
   [RAG Prompt]                   ← SystemMessage + context + question
       │
       ▼
-  [ChatOpenAI LLM]               ← gpt-4o-mini
+  [ChatAnthropic LLM]            ← claude-sonnet-4-6
       │
       ▼
   [StrOutputParser]
@@ -28,7 +28,7 @@ Architecture:
 LangChain components used:
   • PineconeVectorStore.as_retriever()     — vector retriever
   • ChatPromptTemplate                     — structured prompt
-  • ChatOpenAI                             — LLM
+  • ChatAnthropic                          — LLM
   • LCEL pipe (prompt | llm | parser)     — answer chain composition
   • StrOutputParser                        — parse LLM output
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -41,14 +41,14 @@ from functools import lru_cache
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from ingestion.vectorstore import get_vectorstore
 from config.settings import (
-    OPENAI_API_KEY, LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS,
+    ANTHROPIC_API_KEY, LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS,
     TOP_K_RESULTS, SEARCH_TYPE, FETCH_K_MMR, MIN_SCORE_THRESHOLD,
     RAG_SYSTEM_PROMPT,
 )
@@ -60,12 +60,12 @@ log = get_logger("chain")
 # ── LLM singleton ─────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
-def get_llm() -> ChatOpenAI:
-    """Cached LangChain ChatOpenAI instance."""
-    log.info(f"Initialising ChatOpenAI — model: {LLM_MODEL}, "
+def get_llm() -> ChatAnthropic:
+    """Cached LangChain ChatAnthropic instance."""
+    log.info(f"Initialising ChatAnthropic — model: {LLM_MODEL}, "
              f"temperature: {LLM_TEMPERATURE}")
-    return ChatOpenAI(
-        api_key=OPENAI_API_KEY,
+    return ChatAnthropic(
+        api_key=ANTHROPIC_API_KEY,
         model=LLM_MODEL,
         temperature=LLM_TEMPERATURE,
         max_tokens=LLM_MAX_TOKENS,

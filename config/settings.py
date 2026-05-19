@@ -15,14 +15,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── OpenAI ─────────────────────────────────────────────────────────────────────
+# ── OpenAI (embeddings only) ───────────────────────────────────────────────────
 _openai_key = os.getenv("OPENAI_API_KEY")
 if not _openai_key:
     raise EnvironmentError("OPENAI_API_KEY environment variable is not set.")
 OPENAI_API_KEY: str       = _openai_key
 EMBEDDING_MODEL: str      = "text-embedding-3-small"   # LangChain OpenAIEmbeddings
 EMBEDDING_DIMENSIONS: int = 1536
-LLM_MODEL: str            = "gpt-4o-mini"              # LangChain ChatOpenAI
+
+# ── Anthropic (LLM) ────────────────────────────────────────────────────────────
+_anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+if not _anthropic_key:
+    raise EnvironmentError("ANTHROPIC_API_KEY environment variable is not set.")
+ANTHROPIC_API_KEY: str    = _anthropic_key
+LLM_MODEL: str            = "claude-sonnet-4-6"        # LangChain ChatAnthropic
 LLM_TEMPERATURE: float    = 0.0                        # deterministic answers
 LLM_MAX_TOKENS: int       = 1024
 

@@ -49,7 +49,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from ingestion.vectorstore import get_vectorstore
 from config.settings import (
     ANTHROPIC_API_KEY, LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS,
-    TOP_K_RESULTS, SEARCH_TYPE, FETCH_K_MMR, MIN_SCORE_THRESHOLD,
+    TOP_K_RESULTS, SEARCH_TYPE, FETCH_K_MMR,
     RAG_SYSTEM_PROMPT,
 )
 from utils.logger import get_logger
@@ -152,14 +152,12 @@ def _build_retriever(
         )
         log.info(f"Using MMR retriever (k={top_k}, fetch_k={FETCH_K_MMR})")
     else:
-        # similarity_score_threshold filters out low-confidence matches
-        search_kwargs["score_threshold"] = MIN_SCORE_THRESHOLD
+        # Plain similarity — always returns top-K results, no score cutoff
         retriever = vectorstore.as_retriever(
-            search_type="similarity_score_threshold",
+            search_type="similarity",
             search_kwargs=search_kwargs,
         )
-        log.info(f"Using similarity retriever (k={top_k}, "
-                 f"score_threshold={MIN_SCORE_THRESHOLD})")
+        log.info(f"Using plain similarity retriever (k={top_k})")
 
     return retriever
 

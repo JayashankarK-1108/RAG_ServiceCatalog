@@ -24,11 +24,9 @@ EMBEDDING_MODEL: str      = "text-embedding-3-small"   # LangChain OpenAIEmbeddi
 EMBEDDING_DIMENSIONS: int = 1536
 
 # ── Anthropic (LLM) ────────────────────────────────────────────────────────────
-_anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-if not _anthropic_key:
-    raise EnvironmentError("ANTHROPIC_API_KEY environment variable is not set.")
-ANTHROPIC_API_KEY: str    = _anthropic_key
-LLM_MODEL: str            = "claude-sonnet-4-6"        # LangChain ChatAnthropic
+# Optional at import time — validated in retrieval/chain.py when LLM is needed
+ANTHROPIC_API_KEY: str | None = os.getenv("ANTHROPIC_API_KEY")
+LLM_MODEL: str                = "claude-sonnet-4-6"    # LangChain ChatAnthropic
 LLM_TEMPERATURE: float    = 0.0                        # deterministic answers
 LLM_MAX_TOKENS: int       = 1024
 

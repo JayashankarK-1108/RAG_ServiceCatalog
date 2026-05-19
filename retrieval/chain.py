@@ -62,6 +62,8 @@ log = get_logger("chain")
 @lru_cache(maxsize=1)
 def get_llm() -> ChatAnthropic:
     """Cached LangChain ChatAnthropic instance."""
+    if not ANTHROPIC_API_KEY:
+        raise EnvironmentError("ANTHROPIC_API_KEY environment variable is not set.")
     log.info(f"Initialising ChatAnthropic — model: {LLM_MODEL}, "
              f"temperature: {LLM_TEMPERATURE}")
     return ChatAnthropic(

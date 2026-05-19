@@ -18,8 +18,6 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
 
-    pythonVersion: "3.11.9"
-
     healthCheckPath: /health
     autoDeploy: true
 
@@ -67,6 +65,9 @@ services:
 
       - key: API_HOST
         value: "0.0.0.0"
+
+      - key: PYTHON_VERSION
+        value: "3.11.9"
 
       - key: PYTHONPATH
         value: "."

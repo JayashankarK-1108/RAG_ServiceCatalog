@@ -64,10 +64,12 @@ def get_vectorstore() -> PineconeVectorStore:
     """
     _ensure_index()
     log.info("Initialising LangChain PineconeVectorStore …")
+    # Use None for namespace so Pinecone queries the default (__default__) namespace
+    ns = PINECONE_NAMESPACE if PINECONE_NAMESPACE else None
     return PineconeVectorStore(
         index_name=PINECONE_INDEX_NAME,
         embedding=get_embeddings(),
-        namespace=PINECONE_NAMESPACE,
+        namespace=ns,
         pinecone_api_key=PINECONE_API_KEY,
     )
 

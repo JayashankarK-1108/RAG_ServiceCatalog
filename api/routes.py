@@ -116,6 +116,60 @@ def health_check():
         raise HTTPException(status_code=503, detail=f"Pinecone unavailable: {e}")
 
 
+@router.get("/debug/retrieval", tags=["System"])
+def debug_retrieval(q: str = "job decommission"):
+    """Diagnose retrieval pipeline step-by-step."""
+    from pinecone import Pinecone
+    from ingestion.embedder import get_embeddings
+    from config.settings import PINECONE_API_KEY, PINECONE_INDEX_NAME, PINECONE_NAMESPACE
+
+    result = {}
+
+    # Step 1: Direct Pinecone connection
+    try:
+        pc = Pinecone(api_key=PINECONE_API_KEY)
+        idx = pc.Index(PINECONE_INDEX_NAME)
+        stats = idx.describe_index_stats()
+        result["pinecone_total_vectors"] = stats.total_vector_count
+        result["pinecone_namespaces"] = {k: v.vector_count for k, v in stats.namespaces.items()}
+    except Exception as e:
+        result["pinecone_error"] = str(e)
+        return result
+
+    # Step 2: Embed the query
+    try:
+        embeddings = get_embeddings()
+        vec = embeddings.embed_query(q)
+        result["embedding_dim"] = len(vec)
+        result["embedding_ok"] = True
+    except Exception as e:
+        result["embedding_error"] = str(e)
+        return result
+
+    # Step 3: Direct Pinecone similarity query
+    try:
+        ns = PINECONE_NAMESPACE if PINECONE_NAMESPACE else None
+        raw = idx.query(vector=vec, top_k=5, namespace=ns, include_metadata=True)
+        result["direct_pinecone_matches"] = len(raw.matches)
+        result["direct_pinecone_scores"] = [
+            {"id": m.id, "score": round(m.score, 4)} for m in raw.matches
+        ]
+    except Exception as e:
+        result["direct_query_error"] = str(e)
+
+    # Step 4: LangChain vectorstore similarity_search
+    try:
+        from ingestion.vectorstore import get_vectorstore
+        vs = get_vectorstore()
+        docs = vs.similarity_search(q, k=5)
+        result["langchain_docs_returned"] = len(docs)
+        result["langchain_wu_ids"] = [d.metadata.get("wu_id") for d in docs]
+    except Exception as e:
+        result["langchain_error"] = str(e)
+
+    return result
+
+
 @router.post("/query", response_model=QueryResponse, tags=["Search"])
 def query_catalog(req: QueryRequest):
     """

@@ -42,7 +42,7 @@ PINECONE_METRIC: str      = "cosine"
 PINECONE_NAMESPACE: str   = os.getenv("PINECONE_NAMESPACE", "")
 
 # ── Excel ──────────────────────────────────────────────────────────────────────
-EXCEL_FILE_PATH: str  = os.getenv("EXCEL_FILE_PATH", "data/service_catalog.xlsx")
+EXCEL_FILE_PATH: str  = os.getenv("EXCEL_FILE_PATH", "data/Service_Catalog_Data.xlsx")
 EXCEL_SHEET_NAME: str = os.getenv("EXCEL_SHEET_NAME", "0")   # "0" = first sheet
 
 # Exact column header names in the Excel file

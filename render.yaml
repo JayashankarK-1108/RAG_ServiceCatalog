@@ -46,7 +46,7 @@ services:
         value: ""
 
       - key: EXCEL_FILE_PATH
-        value: data/service_catalog.xlsx
+        value: data/Service_Catalog_Data.xlsx
 
       - key: EXCEL_SHEET_NAME
         value: "0"

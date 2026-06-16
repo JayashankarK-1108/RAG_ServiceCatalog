@@ -48,7 +48,7 @@ jobs:
 
           # LangChain document loader
           from ingestion.loader import ExcelServiceCatalogLoader, _build_page_content
-          loader = ExcelServiceCatalogLoader('data/service_catalog.xlsx')
+          loader = ExcelServiceCatalogLoader('data/Service_Catalog_Data.xlsx')
           docs = loader.load()
           assert len(docs) > 0
           print(f'✅ ExcelServiceCatalogLoader — {len(docs)} Documents')

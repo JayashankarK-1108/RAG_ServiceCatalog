@@ -55,7 +55,7 @@ jobs:
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Reset  | ${{ github.event.inputs.reset || 'false' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| File   | ${{ github.event.inputs.excel_file || 'data/service_catalog.xlsx' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| File   | ${{ github.event.inputs.excel_file || 'data/Service_Catalog_Data.xlsx' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           if [ -f logs/ingest.log ]; then
             echo "### Last 20 log lines" >> $GITHUB_STEP_SUMMARY

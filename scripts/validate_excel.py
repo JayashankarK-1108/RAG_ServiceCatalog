@@ -10,7 +10,7 @@ Usage:
 import sys, os, argparse
 import pandas as pd
 
-EXCEL_FILE_PATH: str = os.getenv("EXCEL_FILE_PATH", "data/service_catalog.xlsx")
+EXCEL_FILE_PATH: str = os.getenv("EXCEL_FILE_PATH", "data/Service_Catalog_Data.xlsx")
 COLUMN_MAP: dict = {
     "wu_id":               "WU Id",
     "business_scope":      "Business Scope",

@@ -48,6 +48,10 @@ def _doc_to_source(doc: Document) -> SourceDocument:
         hosting_environment= m.get("hosting_environment", ""),
         project_services=    m.get("project_services", ""),
         sla_notes=           m.get("sla_notes", ""),
+        price_per_hour=      m.get("price_per_hour", ""),
+        effort_hours=        m.get("effort_hours", ""),
+        total_price=         m.get("total_price", ""),
+        delivery_lead_days=  m.get("delivery_lead_days", ""),
         chunk_index=         int(m.get("chunk_index", 0)),
         total_chunks=        int(m.get("total_chunks", 1)),
     )

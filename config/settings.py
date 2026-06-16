@@ -56,6 +56,10 @@ COLUMN_MAP: dict = {
     "activities_category": "Activities Category",
     "project_services":    "Project related Services",
     "sla_notes":           "Column1",
+    "price_per_hour":      "UNIQUE PRICE per hour",
+    "effort_hours":        "PMS Effort (Hours)",
+    "total_price":         "PMS Price with Unique price ",
+    "delivery_lead_days":  " Std Delivery Leadtime (Days)",
 }
 
 # ── LangChain Text Splitter ────────────────────────────────────────────────────
@@ -79,9 +83,11 @@ When answering:
 1. Always state the WU Id(s) clearly at the start of your answer.
 2. Explain what the service covers based on the catalog description.
 3. Mention the SLA or effort level if available.
-4. Be concise and actionable — the user needs to raise a ticket.
-5. If multiple services match, list all relevant WU Ids.
-6. If no relevant service is found, say so clearly and suggest the user
+4. If pricing information is available (Price per Hour, Effort Hours, Total Price,
+   Delivery Lead Time), include it clearly in your answer.
+5. Be concise and actionable — the user needs to raise a ticket.
+6. If multiple services match, list all relevant WU Ids.
+7. If no relevant service is found, say so clearly and suggest the user
    contact the Service Desk."""
 
 # ── Ingestion ─────────────────────────────────────────────────────────────────

@@ -39,6 +39,10 @@ class SourceDocument(BaseModel):
     hosting_environment: str
     project_services:    str
     sla_notes:           str
+    price_per_hour:      str = ""
+    effort_hours:        str = ""
+    total_price:         str = ""
+    delivery_lead_days:  str = ""
     chunk_index:         int = 0
     total_chunks:        int = 1
 

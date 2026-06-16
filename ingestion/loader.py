@@ -44,33 +44,43 @@ def _build_page_content(row: dict) -> str:
     Structured labels + a natural-language summary sentence improve
     semantic matching across diverse query phrasings.
     """
-    wu      = row.get("wu_id", "")
-    cat     = row.get("activities_category", "")
-    tech    = row.get("technology", "")
-    tower   = row.get("tech_tower", "")
-    env     = row.get("hosting_environment", "")
-    scope   = row.get("business_scope", "")
-    desc    = row.get("project_services", "")
-    sla     = row.get("sla_notes", "")
+    wu       = row.get("wu_id", "")
+    cat      = row.get("activities_category", "")
+    tech     = row.get("technology", "")
+    tower    = row.get("tech_tower", "")
+    env      = row.get("hosting_environment", "")
+    scope    = row.get("business_scope", "")
+    desc     = row.get("project_services", "")
+    sla      = row.get("sla_notes", "")
+    price    = row.get("price_per_hour", "")
+    effort   = row.get("effort_hours", "")
+    total    = row.get("total_price", "")
+    leadtime = row.get("delivery_lead_days", "")
 
     lines = [
         f"Work Unit ID: {wu}",
         f"Activity Category: {cat}",
         f"Technology: {tech}",
     ]
-    if tower:  lines.append(f"Tech Tower: {tower}")
-    if env:    lines.append(f"Hosting Environment: {env}")
-    if scope:  lines.append(f"Business Scope: {scope}")
-    if desc:   lines.append(f"Service Description: {desc}")
-    if sla:    lines.append(f"SLA / Effort Level: {sla}")
+    if tower:    lines.append(f"Tech Tower: {tower}")
+    if env:      lines.append(f"Hosting Environment: {env}")
+    if scope:    lines.append(f"Business Scope: {scope}")
+    if desc:     lines.append(f"Service Description: {desc}")
+    if sla:      lines.append(f"SLA / Effort Level: {sla}")
+    if price:    lines.append(f"Price per Hour: {price}")
+    if effort:   lines.append(f"Effort (Hours): {effort}")
+    if total:    lines.append(f"Total Price: {total}")
+    if leadtime: lines.append(f"Delivery Lead Time (Days): {leadtime}")
 
     # Natural-language summary for fuzzy query coverage
     summary = []
-    if cat:   summary.append(f"This is a {cat} activity")
-    if tech:  summary.append(f"for {tech}")
-    if tower: summary.append(f"in the {tower} tower")
-    if env:   summary.append(f"hosted {env}")
-    if sla:   summary.append(f"with SLA: {sla}")
+    if cat:    summary.append(f"This is a {cat} activity")
+    if tech:   summary.append(f"for {tech}")
+    if tower:  summary.append(f"in the {tower} tower")
+    if env:    summary.append(f"hosted {env}")
+    if sla:    summary.append(f"with SLA: {sla}")
+    if price:  summary.append(f"priced at {price} per hour")
+    if effort: summary.append(f"requiring {effort} hours of effort")
     if summary:
         lines.append(". ".join(summary) + ".")
 

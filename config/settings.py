@@ -43,7 +43,7 @@ PINECONE_NAMESPACE: str   = os.getenv("PINECONE_NAMESPACE", "")
 
 # ── Excel ──────────────────────────────────────────────────────────────────────
 EXCEL_FILE_PATH: str  = os.getenv("EXCEL_FILE_PATH", "data/Service_Catalog_Data.xlsx")
-EXCEL_SHEET_NAME: str = os.getenv("EXCEL_SHEET_NAME", "0")   # "0" = first sheet
+EXCEL_SHEET_NAME: str = os.getenv("EXCEL_SHEET_NAME", "IMS - PMS - WU Catalog")
 
 # Exact column header names in the Excel file
 COLUMN_MAP: dict = {

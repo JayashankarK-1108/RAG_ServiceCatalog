@@ -49,7 +49,7 @@ services:
         value: data/Service_Catalog_Data.xlsx
 
       - key: EXCEL_SHEET_NAME
-        value: "0"
+        value: "IMS - PMS - WU Catalog"
 
       - key: LLM_MODEL
         value: claude-sonnet-4-6

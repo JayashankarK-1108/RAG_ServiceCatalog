@@ -8,19 +8,9 @@ Usage:
 """
 
 import sys, os, argparse
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pandas as pd
-
-EXCEL_FILE_PATH: str = os.getenv("EXCEL_FILE_PATH", "data/Service_Catalog_Data.xlsx")
-COLUMN_MAP: dict = {
-    "wu_id":               "WU Id",
-    "business_scope":      "Business Scope",
-    "hosting_environment": "Hosting Environment",
-    "tech_tower":          "Tech Tower",
-    "technology":          "Technology",
-    "activities_category": "Activities Category",
-    "project_services":    "Project related Services",
-    "sla_notes":           "Column1",
-}
+from config.settings import EXCEL_FILE_PATH, COLUMN_MAP
 
 def validate(file_path):
     print(f"\n🔍 Validating: {file_path}\n")

@@ -24,7 +24,7 @@ from langchain_core.documents import Document
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from config.settings import EXCEL_FILE_PATH, COLUMN_MAP, EXCEL_SHEET_NAME, SKIP_EMPTY_ROWS
+from config.settings import EXCEL_FILE_PATH, COLUMN_MAP, EXCEL_SHEET_NAME, EXCEL_HEADER_ROW, SKIP_EMPTY_ROWS
 from utils.logger import get_logger
 
 log = get_logger("loader", "logs/ingest.log")
@@ -103,7 +103,7 @@ class ExcelServiceCatalogLoader(BaseLoader):
 
         try:
             df = pd.read_excel(self.file_path, sheet_name=self.sheet,
-                               header=0, dtype=str)
+                               header=EXCEL_HEADER_ROW, dtype=str)
         except FileNotFoundError:
             log.error(f"File not found: {self.file_path}")
             raise

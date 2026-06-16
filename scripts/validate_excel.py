@@ -10,15 +10,15 @@ Usage:
 import sys, os, argparse
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pandas as pd
-from config.settings import EXCEL_FILE_PATH, EXCEL_SHEET_NAME, COLUMN_MAP
+from config.settings import EXCEL_FILE_PATH, EXCEL_SHEET_NAME, EXCEL_HEADER_ROW, COLUMN_MAP
 
 def validate(file_path):
     sheet = int(EXCEL_SHEET_NAME) if EXCEL_SHEET_NAME.isdigit() else EXCEL_SHEET_NAME
-    print(f"\n🔍 Validating: {file_path} (sheet='{sheet}')\n")
+    print(f"\n🔍 Validating: {file_path} (sheet='{sheet}', header row={EXCEL_HEADER_ROW})\n")
     if not os.path.exists(file_path):
         print(f"❌ File not found"); return False
     try:
-        df = pd.read_excel(file_path, sheet_name=sheet, dtype=str)
+        df = pd.read_excel(file_path, sheet_name=sheet, header=EXCEL_HEADER_ROW, dtype=str)
     except Exception as e:
         print(f"❌ Cannot open: {e}"); return False
 

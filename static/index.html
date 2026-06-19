@@ -794,7 +794,11 @@ async function sendMessage() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
-      appendErrorMessage(err.detail || 'An error occurred.');
+      const detail = err.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map(e => e.msg || JSON.stringify(e)).join('; ')
+        : (typeof detail === 'string' ? detail : 'An error occurred.');
+      appendErrorMessage(msg);
       return;
     }
 

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 # ── Requests ──────────────────────────────────────────────────────────────────
 
 class QueryRequest(BaseModel):
-    query: str = Field(..., min_length=3, max_length=500,
+    query: str = Field(..., min_length=1, max_length=500,
         description="Natural language question about a technical activity",
         examples=["How do I configure an existing Control-M job?"])
     top_k: int = Field(default=5, ge=1, le=20,

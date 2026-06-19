@@ -103,57 +103,6 @@
   #new-chat-btn:hover { background: #333; }
   #new-chat-btn svg { opacity: 0.7; }
 
-  /* Filters */
-  #filters-section {
-    padding: 16px;
-    border-bottom: 1px solid #2a2a2a;
-    flex-shrink: 0;
-  }
-
-  .filter-label {
-    color: var(--sidebar-muted);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 10px;
-  }
-
-  .filter-group { margin-bottom: 10px; }
-  .filter-group label {
-    color: var(--sidebar-muted);
-    font-size: 11px;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  .filter-group select {
-    width: 100%;
-    padding: 6px 8px;
-    background: #2a2a2a;
-    border: 1px solid #3a3a3a;
-    border-radius: 6px;
-    color: var(--sidebar-text);
-    font-size: 12px;
-    cursor: pointer;
-    outline: none;
-  }
-  .filter-group select:focus { border-color: var(--accent); }
-  .filter-group select option { background: #1a1a1a; }
-
-  #top-k-group { margin-top: 4px; }
-  #top-k-group label {
-    color: var(--sidebar-muted);
-    font-size: 11px;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
-  }
-  #top-k-group input[type=range] {
-    width: 100%;
-    accent-color: var(--accent);
-  }
-
   /* Chat history */
   #chat-history {
     flex: 1;
@@ -611,27 +560,6 @@
     </button>
   </div>
 
-  <div id="filters-section">
-    <div class="filter-label">Filters</div>
-    <div class="filter-group">
-      <label>Tech Tower</label>
-      <select id="filter-tech-tower"><option value="">All towers</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Technology</label>
-      <select id="filter-technology"><option value="">All technologies</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Category</label>
-      <select id="filter-category"><option value="">All categories</option></select>
-    </div>
-    <div class="filter-group" id="top-k-group">
-      <label>Results <span id="top-k-val">5</span></label>
-      <input type="range" id="top-k" min="1" max="10" value="5"
-        oninput="document.getElementById('top-k-val').textContent=this.value"/>
-    </div>
-  </div>
-
   <div id="chat-history">
     <div class="history-section-label">Recent</div>
   </div>
@@ -732,20 +660,9 @@ function newChat() {
     </div>`;
 }
 
-// ── Load filters ──
-async function loadFilters() {
-  try {
-    const r = await fetch('/catalog/filters');
-    if (!r.ok) return;
-    const data = await r.json();
-    populate('filter-tech-tower',  data.tech_towers,            'All towers');
-    populate('filter-technology',  data.technologies,           'All technologies');
-    populate('filter-category',    data.activities_categories,  'All categories');
-  } catch {}
-}
-
 function populate(id, items, placeholder) {
   const sel = document.getElementById(id);
+  if (!sel) return;
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   (items || []).forEach(v => {
     const o = document.createElement('option');
@@ -778,10 +695,10 @@ async function sendMessage() {
   try {
     const body = {
       query: text,
-      filter_tech_tower:  document.getElementById('filter-tech-tower').value  || null,
-      filter_technology:  document.getElementById('filter-technology').value   || null,
-      filter_category:    document.getElementById('filter-category').value     || null,
-      top_k: parseInt(document.getElementById('top-k').value),
+      filter_tech_tower:  null,
+      filter_technology:  null,
+      filter_category:    null,
+      top_k: 5,
     };
 
     const res = await fetch('/query', {
@@ -955,7 +872,6 @@ function escapeHtml(str) {
 }
 
 // ── Init ──
-loadFilters();
 inputEl.focus();
 </script>
 </body>
